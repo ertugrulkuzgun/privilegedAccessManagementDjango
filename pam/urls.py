@@ -17,10 +17,11 @@ from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
 from privilegedAccessManagement import views
+from user import urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index,name = "index"),
     path('about/', views.about,name = "about"),
-    path('user/', include("user.urls"))
+    path('user/', include(('user.urls', 'user'), namespace='user'))
 ]
