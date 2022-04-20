@@ -1,0 +1,78 @@
+{% extends 'pam/layout.html' %}
+{% load static %}
+{% csrf_token %}
+<style>
+textarea {
+    background-color: #000;
+    border: 1px solid #000;
+    color: #00ff00;
+    padding: 8px;
+    font-family: courier new;
+}
+</style>
+
+    {% load static %}
+    {% block body %}
+    <body style="background-image: url('{%static 'img/bground.jpg'%}');">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <div style="position:absolute;left:16px;top:80px;">
+        <input id="machine-1" class="btn-check"type="radio" value="machine1" name="machine">
+        <label for="machine-1"><h3>Machine-1&emsp;</h3></label>
+        <input id="machine-2" type="radio" value="machine2" name="machine">
+        <label for="machine-2"><h3>Machine-2&emsp;</h3></label>
+        <input id="machine-3" type="radio" value="machine3" name="machine">
+        <label for="machine-3"><h3>Machine-3</h3></label>
+    </div>
+    <input id="chat-message-input" type="text" style="width:1035px;position:absolute;left:16px;top:130px;background-color:#000;border:1px solid #000;color:#00ff00;padding:8px;font-family:courier new;">
+    <br>
+    <textarea readonly id="chat-log" cols="100" rows="20" size="100" style="position:absolute;left:16px;top:170px;background-color:#000;border:1px solid #000;color:#00ff00;padding:8px;font-family:courier new;resize:none;"></textarea>
+    <br>
+    
+    <input id="chat-message-submit" type="button" value="Send">
+    {{ room_name|json_script:"room-name" }}
+    <script>
+        const defaultRadioBtn = document.getElementById('machine-1');
+        defaultRadioBtn.checked = true;
+        const textarea = document.getElementById('chat-log');
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+            console.error(roomName)
+        const chatSocket = new WebSocket(
+            'ws://localhost:8000/user/command2/'+ roomName + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#chat-log').value += (data.message + '\n');
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        $('input[name="machine"]').on('click change', function(e) {
+            textarea.value = '';
+        });
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const selectedRadio = document.querySelector('input[name="machine"]:checked').value
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'roomName': roomName,   
+                'message': message,
+                'machine': selectedRadio
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+</body>    
+{% endblock body %}

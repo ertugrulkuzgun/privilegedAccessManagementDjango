@@ -18,10 +18,12 @@ from django.urls import path
 from django.urls.conf import include
 from privilegedAccessManagement import views
 from user import urls
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index,name = "index"),
     path('about/', views.about,name = "about"),
     path('user/', include(('user.urls', 'user'), namespace='user'))
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

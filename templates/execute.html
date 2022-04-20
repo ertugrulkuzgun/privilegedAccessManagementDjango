@@ -6,15 +6,17 @@
 
     <div class="row">
         <div class="col-md-6 offset-md-3">
-            <h3>Login</h3>
+            <h3>Execute Command</h3>
             <hr>
             <form method="post">
         
                 {{form.as_p}}
                 {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Login</button>
+                <button type="submit" class="btn btn-danger">Execute</button>
             </form>
         </div>
+    </div>
+    <div id="messagecontainer" style="margin: 20px;">
     </div>
 
     

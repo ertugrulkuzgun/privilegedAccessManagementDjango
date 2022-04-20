@@ -24,3 +24,6 @@ class RegisterForm(forms.Form):
         }
 
         return values
+
+class ExecuteCommand(forms.Form):
+    command = forms.CharField(label="Enter Command")
